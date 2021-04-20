@@ -1,4 +1,3 @@
-import asyncio
 import nest_asyncio
 from requests_html import AsyncHTMLSession
 from bs4 import BeautifulSoup
@@ -31,7 +30,7 @@ def casas_apos_virgula(num):
     return count
 
 
-def convert_html_png(size):
+async def convert_html_png(size):
     largura = round(int(size[0]) + 1)
 
     result = convertapi.convert('png', {'File': 'sample.html', 'ImageHeight': int(size[1]), 'ImageWidth': largura,
@@ -42,12 +41,11 @@ def convert_html_png(size):
 
 
 # RUNAS
-def get_runas(champ, lane):
-    loop = asyncio.get_event_loop()
+async def get_runas(champ, lane):
     url = 'https://www.leagueofgraphs.com/pt/champions/runes/' + champ.replace(" ", '').replace("'", '') + '/' + lane
-    forecast = loop.run_until_complete(get_html(url))
+    forecast = await get_html(url)
     runas, winrate, size = extract_runas_html(forecast)
-    convert_html_png(size)
+    await convert_html_png(size)
     return runas, winrate
 
 
@@ -126,10 +124,9 @@ def extract_runas_html(html):
 
 
 # Progressão Winrate
-def get_progression(qntd_linha=5):
-    loop = asyncio.get_event_loop()
+async def get_progression(qntd_linha=5):
     url = 'https://www.leagueofgraphs.com/pt/champions/progressions'
-    html_page = loop.run_until_complete(get_html(url))
+    html_page = await get_html(url)
     return extract_progression_html(html_page, int(qntd_linha) + 1)
 
 
@@ -168,10 +165,9 @@ def extract_progression_html(page, qntd_linhas):
 
 
 # Melhores (por winrate)
-def get_best_champs(qntd_linhas=5):
-    loop = asyncio.get_event_loop()
+async def get_best_champs(qntd_linhas=5):
     url = 'https://www.leagueofgraphs.com/'
-    forecast = loop.run_until_complete(get_html(url))
+    forecast = await get_html(url)
     txt = extract_best_html(forecast, qntd_linhas)
     return txt
 
@@ -202,13 +198,12 @@ def extract_best_html(page, qntd_linhas):
 
 
 # Get Build Champ
-def get_build_champ(champ_name, lane=""):
-    loop = asyncio.get_event_loop()
+async def get_build_champ(champ_name, lane=""):
     if lane == "":
         url = 'https://www.leagueofgraphs.com/pt/champions/builds/' + champ_name.replace("'", "").lower()
     else:
         url = 'https://www.leagueofgraphs.com/pt/champions/builds/' + champ_name.replace("'", "") + "/" + lane.lower()
-    forecast = loop.run_until_complete(get_html(url))
+    forecast = await get_html(url)
     build = extract_build_html(forecast, champ_name)
     return build
 
@@ -216,7 +211,7 @@ def get_build_champ(champ_name, lane=""):
 def extract_build_html(page, champ):
     page_soup = BeautifulSoup(page, 'html.parser')
     main = page_soup.find('div', {"id": "mainContent"})
-    #vet_a = main.find('a', {'href', '/pt/champions/items/' + champ.lower()})
+
     vet_a = main.find_all('a')
     div1 = vet_a[2].find_all('div')[0]
 
@@ -254,14 +249,13 @@ def extract_build_html(page, champ):
 
 
 # GET LAST UPDATE
-def get_last_update():
-    loop = asyncio.get_event_loop()
+async def get_last_update():
     url = 'https://br.leagueoflegends.com/pt-br/news/game-updates/'
-    forecast = loop.run_until_complete(get_html(url))
+    forecast = await get_html(url)
     link, num_att = extract_last_update_link(forecast)
 
     url = 'https://br.leagueoflegends.com' + link
-    forecast = loop.run_until_complete(get_html(url))
+    forecast = await get_html(url)
     img_link = extract_last_update(forecast)
     return img_link, num_att
 
