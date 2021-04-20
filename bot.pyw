@@ -5,19 +5,19 @@ from win10toast import ToastNotifier
 from formatResponses import format_build, format_runas, format_commands, format_last_update
 from lolRunas import get_runas, get_progression, get_best_champs, get_build_champ, get_last_update
 
-token = 'Your Discord Token'
+token = 'NzQ0Mjk3Njk5NjIwMTU5NjMw.XzhLPw.bbRTfh2p35HwqZFrjIq8XyoizMM'
 symbol = '$'
 client = commands.Bot(command_prefix=symbol)
 
 toast = ToastNotifier()
 
 commands = ['commands',
-            'runas [campeãoTudoJunto] [*lane]',
-            'progression [*X] - Top X (Padrão -> X = 5) com a maior variação da % de vitórias',
+            'runas [campeãoTudoJunto] (lane)',
+            'progression (X) - Top X com a maior variação da % de vitórias',
             'best - Campeões com maior winrate',
             'build [campeãoTudoJunto]',
             'lastUpdate - Imagem com resumo da ultima att',
-            '* -> opcional']
+            '(entre parenteses) -> opcional']
 
 
 @client.event
@@ -44,7 +44,26 @@ async def runas(ctx, msg):
                     await ctx.send(response, file=picture, tts=False)
         except:
             await ctx.send('ERRO!')
-            
+
+
+@client.command(name='runa')
+async def runas2(ctx, msg):
+    async with ctx.typing():
+        try:
+            msg = msg.replace('$runas ', '').lower().split(' ')
+            lane = ""
+            if len(msg) > 1:
+                lane = msg[1]
+            champ = msg[0]
+            runas, winrate = get_runas(champ, lane)
+            if runas != '':
+                response = format_runas(champ, lane, runas, winrate)
+                with open('img.png', 'rb') as f:
+                    picture = File(f)
+                    await ctx.send(response, file=picture, tts=False)
+        except:
+            await ctx.send('ERRO!')
+
 
 @client.command(name='progression')
 async def progression(ctx, msg=''):
@@ -84,7 +103,7 @@ async def build(ctx, msg=""):
 
 
 @client.command(name='lastUpdate')
-async def get_last_update(ctx):
+async def get_last_updat(ctx):
     async with ctx.typing():
         img_link, num_att = get_last_update()
         response = format_last_update(img_link, num_att)

@@ -8,10 +8,10 @@ import convertapi
 
 nest_asyncio.apply()
 
-convertapi.api_secret = 'convert api secret' # used to convert html to png
+convertapi.api_secret = 'kHRwDvQVw0CZSClf'
 
 
-# GENERAL
+# GERAIS
 async def get_html(url):
     session = AsyncHTMLSession()
 
@@ -41,7 +41,7 @@ def convert_html_png(size):
     result.file.save('img.png')
 
 
-# RUNES
+# RUNAS
 def get_runas(champ, lane):
     loop = asyncio.get_event_loop()
     url = 'https://www.leagueofgraphs.com/pt/champions/runes/' + champ.replace(" ", '').replace("'", '') + '/' + lane
@@ -125,7 +125,7 @@ def extract_runas_html(html):
     return frases, winrate, (largura * 1.3, altura)
 
 
-# WINRATE PROGRESSION
+# Progressão Winrate
 def get_progression(qntd_linha=5):
     loop = asyncio.get_event_loop()
     url = 'https://www.leagueofgraphs.com/pt/champions/progressions'
@@ -167,7 +167,7 @@ def extract_progression_html(page, qntd_linhas):
     return txt
 
 
-# BEST CHAMPS (by winrate)
+# Melhores (por winrate)
 def get_best_champs(qntd_linhas=5):
     loop = asyncio.get_event_loop()
     url = 'https://www.leagueofgraphs.com/'
@@ -201,7 +201,7 @@ def extract_best_html(page, qntd_linhas):
     return html
 
 
-# GET CHAMPION'S BUILD
+# Get Build Champ
 def get_build_champ(champ_name, lane=""):
     loop = asyncio.get_event_loop()
     if lane == "":
