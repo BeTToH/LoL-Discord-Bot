@@ -5,7 +5,7 @@ from win10toast import ToastNotifier
 from formatResponses import format_build, format_runas, format_commands, format_last_update
 from lolRunas import get_runas, get_progression, get_best_champs, get_build_champ, get_last_update
 
-token = 'NzQ0Mjk3Njk5NjIwMTU5NjMw.XzhLPw.bbRTfh2p35HwqZFrjIq8XyoizMM'
+token = 'your discord token here'
 symbol = '$'
 client = commands.Bot(command_prefix=symbol)
 
