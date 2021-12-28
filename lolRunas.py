@@ -265,7 +265,7 @@ def extract_last_update_link(page):
     num_att = 0.0
 
     page_soup = BeautifulSoup(page, 'html.parser')
-    lista = page_soup.find_all('h2', {"class": "style__Title-i44rc3-8 jprNto"})
+    lista = page_soup.find_all('h2')
     for item in lista:
         if 'Notas da Atualização' in item.text and 'Teamfight Tactics' not in item.text:
             link = item.parent.parent.parent.parent['href']
