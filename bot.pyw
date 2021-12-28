@@ -1,12 +1,14 @@
+from env import DISCORD_CHANNEL_ID, TOKEN
 from discord import File
 from discord.ext import commands
 
 from formatResponses import format_build, format_runas, format_commands, format_last_update
 from lolRunas import get_runas, get_progression, get_best_champs, get_build_champ, get_last_update
 
-token = 'your discord token here'
+token = TOKEN
 symbol = '$'
 client = commands.Bot(command_prefix=symbol)
+discord_channel_id = DISCORD_CHANNEL_ID
 
 commands = ['commands',
             'runas [campeãoTudoJunto] (lane)',
@@ -21,7 +23,7 @@ git_hub_link = 'https://github.com/BeTToH/LoL-Discord-Bot'
 
 @client.event
 async def on_ready():
-    channel = client.get_channel(608804696345280533)
+    channel = client.get_channel(discord_channel_id)
     await channel.send("Robert Bot :robot:  tá on, nerds!")
 
 
@@ -39,25 +41,6 @@ async def runas(ctx, msg):
             with open('img.png', 'rb') as f:
                 picture = File(f)
                 await ctx.send(response, file=picture, tts=False)
-
-
-@client.command(name='runa')
-async def runas2(ctx, msg):
-    async with ctx.typing():
-        try:
-            msg = msg.replace('$runas ', '').lower().split(' ')
-            lane = ""
-            if len(msg) > 1:
-                lane = msg[1]
-            champ = msg[0]
-            runas, winrate = await get_runas(champ, lane)
-            if runas != '':
-                response = format_runas(champ, lane, runas, winrate)
-                with open('img.png', 'rb') as f:
-                    picture = File(f)
-                    await ctx.send(response, file=picture, tts=False)
-        except:
-            await ctx.send('ERRO!')
 
 
 @client.command(name='progression')
