@@ -43,14 +43,18 @@ def format_runas(champ, lane, runas, winrate):
 
     txt += '*Win rate: ' + winrate + '*\n\n'
 
-    for i in range(0, 4):
-        txt += runas[i] + ' | '
+    for runa in runas:
+        txt += runa + " | "
 
-    txt = txt[:-3] + '\n'
-    for i in range(4, 7):
-        txt += runas[i] + ' | '
-
-    txt = txt[:-3] + '\n' + runas[7] + ' | ' + runas[8] + ' | ' + runas[9]
+    txt.strip(' |')
+    # for i in range(0, 4):
+    #     txt += runas[i] + ' | '
+    #
+    # txt = txt[:-3] + '\n'
+    # for i in range(4, 7):
+    #     txt += runas[i] + ' | '
+    #
+    # txt = txt[:-3] + '\n' + runas[7] + ' | ' + runas[8] + ' | ' + runas[9]
 
     return txt
 

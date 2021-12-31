@@ -9,6 +9,10 @@ nest_asyncio.apply()
 
 convertapi.api_secret = 'kHRwDvQVw0CZSClf'
 
+matriz_runas = [['+9 Força Adaptativa', '+10% Velocidade de Ataque', '+8 Aceleração de Habilidade'],
+                ['+9 Força Adaptativa', '+6 Armadura', '+8 Resistência Mágica'],
+                ['+15-140 Vida', '+6 Armadura', '+8 Resistência Mágica']]
+
 
 # GERAIS
 async def get_html(url):
@@ -30,97 +34,95 @@ def casas_apos_virgula(num):
     return count
 
 
-async def convert_html_png(size):
-    largura = round(int(size[0]) + 1)
-
-    result = convertapi.convert('png', {'File': 'sample.html', 'ImageHeight': int(size[1]), 'ImageWidth': largura,
-                                        'ScaleProportions': 'False'})
+async def convert_html_png(largura):
+    result = convertapi.convert('png', {'File': 'sample.html', 'ImageWidth': largura, 'ScaleProportions': 'False'})
 
     # save to file
     result.file.save('img.png')
 
 
 # RUNAS
-async def get_runas(champ, lane):
-    url = 'https://www.leagueofgraphs.com/pt/champions/runes/' + champ.replace(" ", '').replace("'", '') + '/' + lane
+async def get_runas(champ, lane=""):
+    champ = champ.replace(" ", '').replace("'", '')
+    url = f'https://br.op.gg/champion/{champ}/statistics/{lane + "/" if lane != "" else ""}build'
     forecast = await get_html(url)
-    runas, winrate, size = extract_runas_html(forecast)
-    await convert_html_png(size)
+    runas, winrate, largura = extract_runas_html(forecast)
+    await convert_html_png(largura)
     return runas, winrate
 
 
 def extract_runas_html(html):
     page_soup = BeautifulSoup(html, 'html.parser')
-    winrate = page_soup.find_all('div', {"class": "progressBarTxt"})
-    winrate = winrate[1].contents[0]
-    page_soup = page_soup.find_all("table", {"class": "data_table perksTable perksTableLight"})
-    page_soup = page_soup[0].find('tbody')
 
-    linhas = page_soup.find_all('tr')
+    tb_todas_runas = page_soup.find_all("tbody", {"class": "tabItem ChampionKeystoneRune-1"})[0]
+    primeira_runa = tb_todas_runas.find_all('tr')[0]
+
+    winrate = primeira_runa.find('span', {'class': 'win-ratio__text'}).findNext('strong')
+    winrate = winrate.contents[0]
+
+    linhas = primeira_runa.find_all('div', {"class": 'perk-page__row'})
 
     frases = []
-    pequenas = []
+
     count = 0
-    txt = ""
-    html = '<section style="background-color: #211722; text-align: center">'
-    largura = 0
-    altura = 0
+    html_img = '<section style="background-color: #211722; text-align: center">'
+
+    largura_maior_icone = 82
+    largura = largura_maior_icone * 4 + 40
+
+    tipo_runa = primeira_runa.find_all('div', {'class': 'perk-page__item--mark'})
+    for runa in tipo_runa:
+        runa['style'] = f'width: {largura_maior_icone * 3 / 5}px; padding: 10px 0 10px 0; margin: 0 auto;'
+
     for linha in linhas:
-        cols = linha.find_all('td')
-        less = 0
-        flag = 0
-        html += "<div>"
+        if count == 0:
+            html_img += str(tipo_runa[0])
+        elif count == 5:
+            html_img += str(tipo_runa[1])
 
-        for col in cols:
-            img = col.find('img')
+        ativo = linha.find('div', {'class': 'perk-page__item--active'})
 
-            if count == 0:
-                largura += float(img['width'])
-            if count < 4:
-                if img.has_attr('style'):
-                    op = float(img['style'].split(' ')[1].replace(';', ''))
-                    html += str(img) + ' \n'
-                    if op > less:
-                        less = op
-                        menor = img
-                        txt = img['alt']
+        if ativo is not None:
+            txt = ativo.find('img')['alt']
+            frases.append(txt)
 
-            elif count < 7:
-                if img.has_attr('style'):
-                    op = float(img['style'].split(' ')[1].replace(';', ''))
-                    html += str(img) + " \n"
-                    if op > less:
-                        less = op
-                        menor = img
-                        txt = img['alt']
+        runas = linha.find_all('div', {'class': 'perk-page__image'})
 
+        html_img += '<div style="display: flex; justify-content: space-evenly; padding: 10px 0 10px 0;">'
+        for runa in runas:
+            runa_img = runa.find('img')
+            if count == 1:
+                runa_img['class'] = ''
+                runa_img['style'] = f'width: {largura_maior_icone}px'
             else:
-                if img.parent.has_attr('style') and img.parent['style'] == '':
-                    menor = img
-                    txt = img['alt']
-                    flag = 1
-
-        if flag == 1:
-            pequenas.append(str(menor))
-
-        if count == 9:
-            for el in pequenas:
-                html += el + " \n"
-
-        frases.append(txt)
+                runa_img['class'] = ''
+                runa_img['style'] = f'width: {largura_maior_icone * 4 / 5}px'
+            html_img += str(runa_img)
 
         count += 1
-        html += "</div>"
-        altura += float(img['height'])
+        html_img += "</div>"
 
-    html += "</section>"
+    linhas = primeira_runa.find_all('div', {"class": 'fragment__row'})
+
+    for linha in linhas:
+        count_col = 0
+        runas = linha.find_all('img')
+
+        html_img += '<div style="display: flex; justify-content: center; column-gap: 20px; padding: 10px 0 10px 0;">'
+        for runa in runas:
+            html_img += str(runa)
+            if 'grayscale' not in runa['src']:
+                frases.append(matriz_runas[count-9][count_col])
+            count_col += 1
+        html_img += "</div>"
+        count += 1
 
     file = open("sample.html", "w")
 
-    file.write(html)
+    file.write(html_img)
     file.close()
 
-    return frases, winrate, (largura * 1.3, altura)
+    return frases, winrate, largura
 
 
 # Progressão Winrate
@@ -249,8 +251,8 @@ def extract_build_html(page, champ):
 
 
 # GET LAST UPDATE
-async def get_last_update():
-    url = 'https://br.leagueoflegends.com/pt-br/news/game-updates/'
+async def get_last_update(lang='pt-br'):
+    url = f'https://br.leagueoflegends.com/{lang}/news/game-updates/'
     forecast = await get_html(url)
     link, num_att = extract_last_update_link(forecast)
 
