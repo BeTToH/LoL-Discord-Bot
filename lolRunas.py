@@ -7,7 +7,7 @@ import convertapi
 
 nest_asyncio.apply()
 
-convertapi.api_secret = 'kHRwDvQVw0CZSClf'
+convertapi.api_secret = CONVERT_API_SECRET
 
 matriz_runas = [['+9 Força Adaptativa', '+10% Velocidade de Ataque', '+8 Aceleração de Habilidade'],
                 ['+9 Força Adaptativa', '+6 Armadura', '+8 Resistência Mágica'],
