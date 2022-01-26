@@ -8,8 +8,8 @@ Discord bot that returns info about the game League of Legends using web scrapin
 4. Run it.
 
 Dependencies:
-    discord.py
-    nest_asyncio
-    requests_html
-    convertapi
-    beautifulsoup4
+    discord.py;
+    nest_asyncio;
+    requests_html;
+    convertapi;
+    beautifulsoup4;
